@@ -1,4 +1,4 @@
--module(tcp_connected).
+-module(tcp_established).
 
 -behaviour(gen_event).
 
