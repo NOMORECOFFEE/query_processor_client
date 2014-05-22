@@ -1,4 +1,4 @@
--module(query_processor_client_connected).
+-module(tcp_connected).
 
 -behaviour(gen_event).
 
