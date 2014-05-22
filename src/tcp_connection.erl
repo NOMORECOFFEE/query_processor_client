@@ -53,18 +53,18 @@ check_request(Request) ->
             {ok, Request}
     end.
 
-connected({request, Packet}, From, StateIn) ->
+established({request, Packet}, From, StateIn) ->
     do_send_request(Packet, From, StateIn);
 
-connected(_Msg, _From, StateIn) ->
+established(_Msg, _From, StateIn) ->
     ?LOG(?LERROR, "unknown message", [{message, _Msg}]),
     {next_state, connected, StateIn}.
 
-connected(timeout, StateIn) ->
+established(timeout, StateIn) ->
     gen_tcp:close(StateIn#state.connection),
     {next_state, closed, StateIn};
 
-connected(_Msg, StateIn) ->
+established(_Msg, StateIn) ->
     ?LOG(?LERROR, "unknown message", [{message, _Msg}]),
     {next_state, connected, StateIn}.
 
@@ -90,7 +90,7 @@ handle_sync_event(_Msg, _From, StateName, State) ->
 
 handle_event({init, CollectionId}, closed, StateIn) ->
     Options = do_get_options(CollectionId),
-    Hostname = kmsutil:string_to_list(proplists:get_value(host, Options, ?DEFAULT_HOST)),
+    Hostname = util:string_to_list(proplists:get_value(host, Options, ?DEFAULT_HOST)),
     Port = proplists:get_value(port, Options, ?DEFAULT_PORT),
     Timeout = proplists:get_value(timeout, Options, StateIn#state.timeout),
     true = gproc:reg({n, l, {?MODULE, CollectionId}}),
@@ -110,7 +110,7 @@ handle_event({init, CollectionId}, closed, StateIn) ->
                     {port, Port}
                 ]),
             Connection = do_connect(Hostname, Port),
-            {next_state, connected, State#state{connection = Connection}}
+            {next_state, established, State#state{connection = Connection}}
     end;
 
 handle_event(_Msg, StateName, State) ->
@@ -154,15 +154,6 @@ do_send_request(Packet, From, StateIn)  ->
     ok = gen_tcp:send(StateIn#state.connection, <<1:8, PacketBinary/binary>>),
     {next_state, connected, StateIn#state{requests = dict:store(Id, From, StateIn#state.requests)}}.
 
-do_decode(Data) ->
-    Packet = binary_to_term(Data),
-    Id = proplists:get_value('query-id', Packet),
-    {Id, Packet}.
-
-do_encode(Packet) ->
-    Id = proplists:get_value('query-id', Packet),
-    PacketBinary = term_to_binary(Packet),
-    {Id, PacketBinary}.
 
 do_fetch_client(Id, Requests) ->
     {dict:fetch(Id, Requests), dict:erase(Id, Requests)}.
