@@ -178,10 +178,10 @@ do_packet_handler(Data, #state{requests = RequestsIn} = StateIn) ->
     end.
 
 do_get_options(CollectionId) ->
-    case kmsconfig:get_value(?CONFIG, [CollectionId, 'query-processing'], []) of
+    case config:get_value(?CONFIG, [CollectionId, 'query-processing'], []) of
         [] ->
             ?LOG(?LERROR, "There is no tcp_connection options", [{collection_id, CollectionId}]),
-            kmsconfig:get_value(?CONFIG, ['tcp_connection'], []);
+            config:get_value(?CONFIG, ['tcp_connection'], []);
         Options ->
             Options
     end.
