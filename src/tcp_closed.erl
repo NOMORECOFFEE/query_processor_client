@@ -1,4 +1,4 @@
--module(query_processor_client_closed).
+-module(tcp_closed).
 
 -behaviour(gen_event).
 
@@ -13,7 +13,7 @@ init([CollectionId]) ->
     
 handle_event({request, Packet}, CollectionId) ->
     gen_event:notify(self(), {request, Packet}),
-    {swap_handler, normal, CollectionId, query_processor_client_connected, CollectionId}.
+    {swap_handler, normal, CollectionId, tcp_established, CollectionId}.
 
 
 terminate(_, StateIn) ->
