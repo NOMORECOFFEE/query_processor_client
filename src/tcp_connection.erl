@@ -1,4 +1,4 @@
--module(query_processor_client).
+-module(tcp_connection).
 
 -behaviour(gen_fsm).
 
@@ -29,7 +29,7 @@
           requests = dict:new() :: dict()
          }).
 
--define(CONFIG, "query_processor_client.conf").
+-define(CONFIG, "tcp_connection.conf").
 
 -define(DEFAULT_HOST, localhost).
 -define(DEFAULT_PORT, 8840).
@@ -189,8 +189,8 @@ do_packet_handler(Data, #state{requests = RequestsIn} = StateIn) ->
 do_get_options(CollectionId) ->
     case kmsconfig:get_value(?CONFIG, [CollectionId, 'query-processing'], []) of
         [] ->
-            ?LOG(?LERROR, "There is no query processing options", [{collection_id, CollectionId}]),
-            kmsconfig:get_value(?CONFIG, ['default-query-processing'], []);
+            ?LOG(?LERROR, "There is no tcp_connection options", [{collection_id, CollectionId}]),
+            kmsconfig:get_value(?CONFIG, ['tcp_connection'], []);
         Options ->
             Options
     end.
