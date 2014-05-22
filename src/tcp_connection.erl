@@ -58,7 +58,7 @@ established({request, Packet}, From, StateIn) ->
 
 established(_Msg, _From, StateIn) ->
     ?LOG(?LERROR, "unknown message", [{message, _Msg}]),
-    {next_state, connected, StateIn}.
+    {next_state, established, StateIn}.
 
 established(timeout, StateIn) ->
     gen_tcp:close(StateIn#state.connection),
@@ -66,7 +66,7 @@ established(timeout, StateIn) ->
 
 established(_Msg, StateIn) ->
     ?LOG(?LERROR, "unknown message", [{message, _Msg}]),
-    {next_state, connected, StateIn}.
+    {next_state, established, StateIn}.
 
 closed({request, Packet}, From, #state{server = Hostname, port = Port} = StateIn) ->
     do_send_request(Packet, From, StateIn#state{connection = do_connect(Hostname, Port)}).
